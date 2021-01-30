@@ -35,6 +35,7 @@ In this lesson, you will learn about three main topics:
 - [Funk SVD](#Funk_SVD)
     - [Funk SVD principle](#Funk_SVD_principle)
     - [Funk SVD in Code](#Funk_SVD_in_Code)
+    - How are 
   
 - [Setup Instructions](#Setup_Instructions)
 - [Acknowledgments](#Acknowledgments)
@@ -263,6 +264,7 @@ Use the following rule in updating these random values
 ## Funk SVD in Code <a name="Funk_SVD_in_Code"></a>
 
 - Open notebook ```./notebooks/2_Implementing_FunkSVD.ipynb```
+- Open notebook ```./notebooks/3_How_well_we_are_doing.ipynb```
 
     ```
     import numpy as np
@@ -278,20 +280,33 @@ Use the following rule in updating these random values
 
     del movies['Unnamed: 0']
     del reviews['Unnamed: 0']
-
-    # Create user-by-item matrix
-    user_items = reviews[['user_id', 'movie_id', 'rating', 'timestamp']]
-    user_by_movie = user_items.groupby(['user_id', 'movie_id'])['rating'].max().unstack()
-
-    # Create data subset
-    user_movie_subset = user_by_movie[[73486, 75314,  68646, 99685]].dropna(axis=0)
-    ratings_mat = np.matrix(user_movie_subset)
-    print(ratings_mat)
     ```
 
     ```
-    def FunkSVD(ratings_mat, latent_features=4, learning_rate=0.0001, iters=100):
-        '''This function performs matrix factorization using a basic form of FunkSVD with no regularization
+    def create_train_test(reviews, order_by, training_size, testing_size):
+        '''    
+        INPUTS:
+        ------------
+            reviews - (pandas df) dataframe to split into train and test
+            order_by - (string) column name to sort by
+            training_size - (int) number of rows in training set
+            testing_size - (int) number of columns in the test set
+        
+        OUTPUTS:
+        ------------
+            training_df -  (pandas df) dataframe of the training set
+            validation_df - (pandas df) dataframe of the test set
+        '''
+        reviews_new = reviews.sort_values(order_by)
+        training_df = reviews_new.head(training_size)
+        validation_df = reviews_new.iloc[training_size:training_size+testing_size]
+        
+        return training_df, validation_df
+    ```
+
+    ```
+    def FunkSVD(ratings_mat, latent_features=12, learning_rate=0.0001, iters=100):
+        ''' This function performs matrix factorization using a basic form of FunkSVD with no regularization
         
         INPUTS:
         ------------
@@ -318,7 +333,7 @@ Use the following rule in updating these random values
         # initialize sse at 0 for first iteration
         sse_accum = 0
         
-        # header for running results
+        # keep track of iteration and MSE
         print("Optimizaiton Statistics")
         print("Iterations | Mean Squared Error ")
         
@@ -347,17 +362,99 @@ Use the following rule in updating these random values
                             user_mat[i, k] += learning_rate * (2*diff*movie_mat[k, j])
                             movie_mat[k, j] += learning_rate * (2*diff*user_mat[i, k])
 
-            # print results for iteration
+            # print results
             print("%d \t\t %f" % (iteration+1, sse_accum / num_ratings))
             
         return user_mat, movie_mat 
     
-    user_mat, movie_mat = FunkSVD(ratings_mat, latent_features=4, learning_rate=0.005, iters=10)
+    # Create user-by-item matrix
+    train_user_item = train_df[['user_id', 'movie_id', 'rating', 'timestamp']]
+    train_data_df = train_user_item.groupby(['user_id', 'movie_id'])['rating'].max().unstack()
+    train_data_np = np.array(train_data_df)
 
-    # Reconstruct user_movie_subset via dot product of U and V
-    print(np.dot(user_mat, movie_mat))
-    print(ratings_mat)
+    # Fit FunkSVD with the specified hyper parameters to the training data
+    user_mat, movie_mat = FunkSVD(train_data_np, latent_features=15, learning_rate=0.005, iters=250)    
     ```
+    ```
+    def predict_rating(user_matrix, movie_matrix, user_id, movie_id):
+        '''
+        INPUTS:
+        ------------
+            user_matrix - user by latent factor matrix
+            movie_matrix - latent factor by movie matrix
+            user_id - the user_id from the reviews df
+            movie_id - the movie_id according the movies df
+        
+        OUTPUTS:
+        ------------
+            pred - the predicted rating for user_id-movie_id according to FunkSVD
+        '''
+        
+        # Use the training data to create a series of users and movies that matches the ordering in training data
+        user_ids_series = np.array(train_data_df.index)
+        movie_ids_series = np.array(train_data_df.columns)
+        
+        # User row and Movie Column
+        user_row = np.where(user_ids_series == user_id)[0][0]
+        movie_col = np.where(movie_ids_series == movie_id)[0][0]
+        
+        # Take dot product of that row and column in U and V to make prediction
+        pred = np.dot(user_matrix[user_row, :], movie_matrix[:, movie_col])
+        
+        return pred
+
+    # Test your function with the first user-movie in the user-movie matrix (notice this is a nan)
+    pred_val = predict_rating(user_mat, movie_mat, 8, 2844)
+    pred_val
+    ```
+    ```
+    def print_prediction_summary(user_id, movie_id, prediction):
+        '''
+        INPUTS:
+        ------------
+            user_id - the user_id from the reviews df
+            movie_id - the movie_id according the movies df
+            prediction - the predicted rating for user_id-movie_id
+        OUTPUTS:
+        ------------
+            None
+        '''
+        
+        movie_name = str(movies[movies['movie_id'] == movie_id]['movie']) [5:]
+        movie_name = movie_name.replace('\nName: movie, dtype: object', '')
+        print("For user {} we predict a {} rating for the movie {}.".format(user_id, round(prediction, 2), str(movie_name)))
+
+    # Test your function the the results of the previous function
+    print_prediction_summary(8, 2844, pred_val)
+    ```
+    ```
+    def validation_comparison(val_df, num_preds):
+        '''
+        INPUTS:
+        ------------
+            val_df - the validation dataset created in the third cell above
+            num_preds - (int) the number of rows (going in order) you would like to make predictions for
+
+        OUTPUTS:
+        ------------
+            Nothing returned - print a statement about the prediciton made for each row of val_df from row 0 to num_preds
+        '''
+        
+        val_users = np.array(val_df['user_id'])
+        val_movies = np.array(val_df['movie_id'])
+        val_ratings = np.array(val_df['rating'])
+        
+        
+        for idx in range(num_preds):
+            pred = predict_rating(user_mat, movie_mat, val_users[idx], val_movies[idx])
+            print("The actual rating for user {} on movie {} is {}.\n While the predicted rating is {}.".format(val_users[idx], val_movies[idx], val_ratings[idx], round(pred))) 
+
+            
+    # Perform the predicted vs. actual for the first 6 rows.  How does it look?
+    validation_comparison(val_df, 6) 
+    ```
+## The Cold Start Problem
+
 ## Setup Instructions <a name="Setup_Instructions"></a>
 The following is a brief set of instructions on setting up a cloned repository.
 
