@@ -44,7 +44,7 @@ In this lesson, you will learn about three main topics:
 # Validating Recommendations <a name="Recommendation_Engines"></a>
 
 - How do we know, if our users like the recommendations?
-1. Online Testing:
+1. ***Online Testing***:
     - Before/After Test
     - We could look at some metrics of interest prior to implementing the recommendation
         - User engagement
@@ -57,22 +57,22 @@ In this lesson, you will learn about three main topics:
 
     ![image1]
 
-2. Offline Testing: How could we proof the performance of the Recommendation Engine before using it on real users?
-    - Split data into a training and testing partition
-    - Fit the recommender on the training set
-    - Evaluate the performance on the testing set
-    - In case of collected ratings over time 
+2. ***Offline Testing***: How could we proof the performance of the Recommendation Engine before using it on real users?
+    - ***Split*** data into a training and testing partition
+    - ***Fit*** the recommender on the training set
+    - ***Evaluate*** the performance on the testing set
+    - ***Sort***: In case of collected ratings ***over time*** 
         - Newest data --> for testing set
         - Older data --> for training set
-        - This avoids using futire data making prediction on past data
+        - This avoids using future data for making predictions on past data
     - Idea: 
-        - Predict ratings (user-item-combination) for every movie 
-        - Compare the ratings of a certain users to our predictions 
-        - If we do this for every rating in the test set we can understand how well our recommendation engine is working
+        - ***Predict*** ratings (user-item-combination) for every movie 
+        - ***Compare*** the ratings of a certain user to our predictions 
+        - ***Understand***: If we do this for every rating in the test set we can understand how well our recommendation engine is working
 
 ![image2]
 
-3. User Groups:
+3. ***User Groups***:
     - Having user groups which give feedback on items you would recommend for them.
     - Obtaining good user groups that are representative of your customers can be a challenge on its own.
     - This is especially true when you have a lot of products and a very large consumer base. 
@@ -437,7 +437,7 @@ Use the following rule in updating these random values
 
         OUTPUTS:
         ------------
-            Nothing returned - print a statement about the prediciton made for each row of val_df from row 0 to num_preds
+            Nothing returned - print a statement about the prediciton made for each row of val_df from row 0 to num_preds±
         '''
         
         val_users = np.array(val_df['user_id'])
