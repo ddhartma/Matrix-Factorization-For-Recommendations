@@ -17,6 +17,8 @@
 [image17]: assets/validation_1.png "image17"
 [image18]: assets/validation_2.png "image18"
 [image19]: assets/user_mat.png "image19"
+[image20]: assets/validation_error.png "image19"
+[image21]: assets/rec_expl_1.png "image19"
 
 # Matrix Factorization for Recommendation 
 In this lesson, you will learn about three main topics:
@@ -40,7 +42,7 @@ In this lesson, you will learn about three main topics:
     - [Funk SVD in Code](#Funk_SVD_in_Code)
  
 - [Cold Start Problem](#Cold_Start_Problem)   
-  
+- [The Recommender Class](#recommender_class)
 - [Setup Instructions](#Setup_Instructions)
 - [Acknowledgments](#Acknowledgments)
 - [Further Links](#Further_Links)
@@ -287,7 +289,26 @@ With Funk SVD one can compute missing values from only the given values
     del movies['Unnamed: 0']
     del reviews['Unnamed: 0']
     ```
+    ***movies***
 
+    |    |   movie_id | movie                                                | genre             |   date |   1800's |   1900's |   2000's |   History |   News |   Horror |   Musical |   Film-Noir |   Mystery |   Adventure |   Sport |   War |   Music |   Reality-TV |   Adult |   Crime |   Family |   Drama |   Talk-Show |   Biography |   Sci-Fi |   Fantasy |   Romance |   Game-Show |   Action |   Documentary |   Animation |   Comedy |   Short |   Western |   Thriller |
+    |---:|-----------:|:-----------------------------------------------------|:------------------|-------:|---------:|---------:|---------:|----------:|-------:|---------:|----------:|------------:|----------:|------------:|--------:|------:|--------:|-------------:|--------:|--------:|---------:|--------:|------------:|------------:|---------:|----------:|----------:|------------:|---------:|--------------:|------------:|---------:|--------:|----------:|-----------:|
+    |  0 |          8 | Edison Kinetoscopic Record of a Sneeze (1894)        | Documentary|Short |   1894 |        1 |        0 |        0 |         0 |      0 |        0 |         0 |           0 |         0 |           0 |       0 |     0 |       0 |            0 |       0 |       0 |        0 |       0 |           0 |           0 |        0 |         0 |         0 |           0 |        0 |             1 |           0 |        0 |       1 |         0 |          0 |
+    |  1 |         10 | La sortie des usines Lumière (1895)                  | Documentary|Short |   1895 |        1 |        0 |        0 |         0 |      0 |        0 |         0 |           0 |         0 |           0 |       0 |     0 |       0 |            0 |       0 |       0 |        0 |       0 |           0 |           0 |        0 |         0 |         0 |           0 |        0 |             1 |           0 |        0 |       1 |         0 |          0 |
+    |  2 |         12 | The Arrival of a Train (1896)                        | Documentary|Short |   1896 |        1 |        0 |        0 |         0 |      0 |        0 |         0 |           0 |         0 |           0 |       0 |     0 |       0 |            0 |       0 |       0 |        0 |       0 |           0 |           0 |        0 |         0 |         0 |           0 |        0 |             1 |           0 |        0 |       1 |         0 |          0 |
+    |  3 |         25 | The Oxford and Cambridge University Boat Race (1895) | nan               |   1895 |        1 |        0 |        0 |         0 |      0 |        0 |         0 |           0 |         0 |           0 |       0 |     0 |       0 |            0 |       0 |       0 |        0 |       0 |           0 |           0 |        0 |         0 |         0 |           0 |        0 |             0 |           0 |        0 |       0 |         0 |          0 |
+    |  4 |         91 | Le manoir du diable (1896)                           | Short|Horror      |   1896 |        1 |        0 |        0 |         0 |      0 |        1 |         0 |           0 |         0 |           0 |       0 |     0 |       0 |            0 |       0 |       0 |        0 |       0 |           0 |           0 |        0 |         0 |         0 |           0 |        0 |             0 |           0 |        0 |       1 |         0 |          0 |    
+
+
+    ***reviews***
+
+    |    |   user_id |   movie_id |   rating |   timestamp | date                |   month_1 |   month_2 |   month_3 |   month_4 |   month_5 |   month_6 |   month_7 |   month_8 |   month_9 |   month_10 |   month_11 |   month_12 |   year_2013 |   year_2014 |   year_2015 |   year_2016 |   year_2017 |   year_2018 |
+    |---:|----------:|-----------:|---------:|------------:|:--------------------|----------:|----------:|----------:|----------:|----------:|----------:|----------:|----------:|----------:|-----------:|-----------:|-----------:|------------:|------------:|------------:|------------:|------------:|------------:|
+    |  0 |         1 |      68646 |       10 |  1381620027 | 2013-10-12 23:20:27 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          1 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
+    |  1 |         1 |     113277 |       10 |  1379466669 | 2013-09-18 01:11:09 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
+    |  2 |         2 |     422720 |        8 |  1412178746 | 2014-10-01 15:52:26 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          1 |          0 |          0 |           0 |           1 |           0 |           0 |           0 |           0 |
+    |  3 |         2 |     454876 |        8 |  1394818630 | 2014-03-14 17:37:10 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           0 |           1 |           0 |           0 |           0 |           0 |
+    |  4 |         2 |     790636 |        7 |  1389963947 | 2014-01-17 13:05:47 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           0 |           1 |           0 |           0 |           0 |           0 |
     ```
     def create_train_test(reviews, order_by, training_size, testing_size):
         '''    
@@ -313,13 +334,15 @@ With Funk SVD one can compute missing values from only the given values
     # Use our function to create training and test datasets
     train_df, val_df = create_train_test(reviews, 'date', 8000, 2000)
     ```
-|        |   user_id |   movie_id |   rating |   timestamp | date                |   month_1 |   month_2 |   month_3 |   month_4 |   month_5 |   month_6 |   month_7 |   month_8 |   month_9 |   month_10 |   month_11 |   month_12 |   year_2013 |   year_2014 |   year_2015 |   year_2016 |   year_2017 |   year_2018 |
-|-------:|----------:|-----------:|---------:|------------:|:--------------------|----------:|----------:|----------:|----------:|----------:|----------:|----------:|----------:|----------:|-----------:|-----------:|-----------:|------------:|------------:|------------:|------------:|------------:|------------:|
-| 498923 |     37287 |    2171847 |        6 |  1362062307 | 2013-02-28 14:38:27 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
-| 442554 |     33140 |     444778 |        8 |  1362062624 | 2013-02-28 14:43:44 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
-|  81920 |      6338 |    1411238 |        6 |  1362062838 | 2013-02-28 14:47:18 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
-| 584570 |     43691 |    1496422 |        7 |  1362063503 | 2013-02-28 14:58:23 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
-| 450669 |     33799 |     118799 |        5 |  1362063653 | 2013-02-28 15:00:53 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
+    ***train_df (val_df is similar)***
+
+    |        |   user_id |   movie_id |   rating |   timestamp | date                |   month_1 |   month_2 |   month_3 |   month_4 |   month_5 |   month_6 |   month_7 |   month_8 |   month_9 |   month_10 |   month_11 |   month_12 |   year_2013 |   year_2014 |   year_2015 |   year_2016 |   year_2017 |   year_2018 |
+    |-------:|----------:|-----------:|---------:|------------:|:--------------------|----------:|----------:|----------:|----------:|----------:|----------:|----------:|----------:|----------:|-----------:|-----------:|-----------:|------------:|------------:|------------:|------------:|------------:|------------:|
+    | 498923 |     37287 |    2171847 |        6 |  1362062307 | 2013-02-28 14:38:27 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
+    | 442554 |     33140 |     444778 |        8 |  1362062624 | 2013-02-28 14:43:44 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
+    |  81920 |      6338 |    1411238 |        6 |  1362062838 | 2013-02-28 14:47:18 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
+    | 584570 |     43691 |    1496422 |        7 |  1362063503 | 2013-02-28 14:58:23 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
+    | 450669 |     33799 |     118799 |        5 |  1362063653 | 2013-02-28 15:00:53 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |         0 |          0 |          0 |          0 |           1 |           0 |           0 |           0 |           0 |           0 |
     ```
     def FunkSVD(ratings_mat, latent_features=12, learning_rate=0.0001, iters=100):
         ''' This function performs matrix factorization using a basic form of FunkSVD with no regularization
@@ -392,6 +415,11 @@ With Funk SVD one can compute missing values from only the given values
     user_mat, movie_mat = FunkSVD(train_data_np, latent_features=15, learning_rate=0.005, iters=250)    
     ```
     ![image19]
+
+    - There are 3278 user, 2679 movies and 15 latent features 
+    - user_mat.shape = (378, 15)
+    - movie_mat.shape = (15, 2679)
+
     ```
     def predict_rating(user_matrix, movie_matrix, user_id, movie_id):
         '''
@@ -425,6 +453,11 @@ With Funk SVD one can compute missing values from only the given values
     pred_val
     ```
     ```
+    Output:
+    7.1856887918502661
+    ```
+    It is great that you now have a way to make predictions. However it might be nice to get a little phrase back about the user, movie, and rating.
+    ```
     def print_prediction_summary(user_id, movie_id, prediction):
         '''
         INPUTS:
@@ -443,6 +476,10 @@ With Funk SVD one can compute missing values from only the given values
 
     # Test your function the the results of the previous function
     print_prediction_summary(8, 2844, pred_val)
+    ```
+    ```
+    Output:
+    For user 8 we predict a 7.19 rating for the movie  Fantômas - À l'ombre de la guillotine (1913).
     ```
     ```
     def validation_comparison(val_df, num_preds):
@@ -470,6 +507,7 @@ With Funk SVD one can compute missing values from only the given values
     # Perform the predicted vs. actual for the first 6 rows.  How does it look?
     validation_comparison(val_df, 6) 
     ```
+    ![image20]
 ## Cold Start Problem <a name="Cold_Start_Problem"></a>
 - For the code above: When a user or movie hadn't been in our training dataset but then showed up in the testing dataset 
 - In cases where you are introduced to a new user or new movie, collaborative flitering is not helpful as a technique to make predictions.
@@ -615,6 +653,12 @@ Notice the following information is available by running the below cell:
     plt.title("Actual vs. Predicted Values");
     ```
     ![image17]
+
+    ***Result***: 
+    - The majority of values fall into rating=6, where the actual and the predicted value is around 6. 
+    - There are not many movies falling into a rating 0...3 and 8...9  
+    - We were able to make predictions of about 50% 
+    - We are missing by about 2.04 on any of those ratings 
     ```
     plt.figure(figsize=(8,8))
     plt.hist(acts, normed=True, alpha=.5, label='actual');
@@ -746,6 +790,36 @@ Notice the following information is available by running the below cell:
     ## Make Recommendations
     The above cells set up everything we need to use to make predictions. The function below uses the above information as necessary to provide recommendations for every user in the val_df dataframe. There isn't one right way to do this, but using ***a blend between the three*** could be your best bet.
 
+    This is a short subset of train_data_df 
+    - index = user_ids
+    - header = movie_ids
+
+    |   user_id |   2844 |   8133 |   13427 |   14142 |   14538 |   14872 |   15163 |   15324 |   15400 |   17925 |
+    |----------:|-------:|-------:|--------:|--------:|--------:|--------:|--------:|--------:|--------:|--------:|
+    |         8 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    |        46 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    |        48 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    |        51 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    |        66 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    |        72 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    |        90 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    |       104 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    |       112 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    |       130 |    nan |    nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |     nan |
+    
+    Strategy for recommendations: 
+    - if id is user type, then choose between
+        - ***FunkSVD***
+        - ***Rank Based System***
+        - (***Collaborative Filtering***)
+        
+    - if id is movie type
+        - use ***Content Based Recommendation***
+        - find similar movies to the id you give me --- find_similar_movies(_id)
+        - get the names of those movies --- get_movie_names(rec_ids)
+    
+
+    
     ```
     def make_recommendations(_id, _id_type='movie', train_data=train_data_df, 
                          train_df=train_df, movies=movies, rec_num=5, user_mat=user_mat):
@@ -797,6 +871,12 @@ Notice the following information is available by running the below cell:
         
         return rec_ids, rec_names
     ```
+    In case of FunKSVD for id type 'user' and user is in index of train_data_df
+    - i.e. movie ratings from that user exist
+    - the user is 'usefull' with regard to make recommendations for him
+    
+    ![image21]
+
     Let's test it with an example 
     ```
     make_recommendations(48, 'user')
@@ -849,13 +929,13 @@ Notice the following information is available by running the below cell:
     This recommendation style looks like it may do okay with accuracy, but it seems like a lot of the same movies are showing up. When we think back to serendipity, novelty, and diversity as means of a good recommendation system, this set of recommendations still isn't great. We might consider providing some content based recommendations from movies an individual has watched along with these recommendations to meet those categories of a good recommender.
    
 
+# The Recommender Class] <a name="recommender_class"></a>  
 
 
 
 
 
-
-## Setup Instructions <a name="Setup_Instructions"></a>
+# Setup Instructions <a name="Setup_Instructions"></a>
 The following is a brief set of instructions on setting up a cloned repository.
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
