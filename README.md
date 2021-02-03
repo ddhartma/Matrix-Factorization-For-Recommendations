@@ -732,7 +732,7 @@ Notice the following information is available by running the below cell:
     ## Add Rank Based techiques for New Users
     From the above two code cells, we have a way to make recommendations for movie-user pairs that have ratings in any part of our user-movie matrix. We also have a way to make ratings for movies that have never received a rating using movie similarities.
 
-    In this last part here, we need a way to make recommendations to new users. For this, our functions from [Most_Popular_Recommendations](https://github.com/ddhartma/Recommendation-Engines) . Run the cell below to have these functions available.
+    In this last part here, we need a way to make recommendations to new users. For this, we could use the functions from [Most_Popular_Recommendations](https://github.com/ddhartma/Recommendation-Engines) of the Recommendation repo.
     ```
     def create_ranked_df(movies, reviews):
         '''
