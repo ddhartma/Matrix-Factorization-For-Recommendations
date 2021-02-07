@@ -1041,3 +1041,6 @@ Docstrings, DRY, PEP8
 * [Python Docstrings](https://www.geeksforgeeks.org/python-docstrings/)
 * [DRY](https://www.youtube.com/watch?v=IGH4-ZhfVDk)
 * [PEP 8 -- Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/)
+
+Readme
+* [python-tabulate to convert pandas DataFrames to Readme tables](https://pypi.org/project/tabulate/)
